@@ -28,15 +28,8 @@ public class WinScreenAnimation : MonoBehaviour
     private void Awake()
     {
         _activeCoroutines = new System.Collections.Generic.List<Coroutine>();
-    }
-
-    private void OnEnable()
-    {
         _startAlpha = 0;
         _endAlpha = _panelImage.color.a;
-
-        _restartButton.onClick.AddListener(OnRestartButtonClick);
-
         _yParentPivot = GetComponentInParent<RectTransform>().pivot.y;
         _yTextPivot = _text.rectTransform.pivot.y;
         _restartButtonRectTransform = _restartButton.GetComponent<RectTransform>();
@@ -44,11 +37,15 @@ public class WinScreenAnimation : MonoBehaviour
         _restartButtonInSightPosition = _restartButtonRectTransform.localPosition;
         RectTransform rootTransform = _root.GetComponent<RectTransform>();
         _yRestartButtonPivot = _restartButtonRectTransform.pivot.y;
-
         _textOutSightPosition = new Vector2(_text.rectTransform.localPosition.x,
             rootTransform.rect.height * _yParentPivot + _text.rectTransform.rect.height * _yTextPivot);
         _restartButtonOutSightPosition = new Vector2(_restartButtonRectTransform.localPosition.x,
             -(rootTransform.rect.height) * _yParentPivot - _restartButtonRectTransform.rect.height * _yRestartButtonPivot);
+    }
+
+    private void OnEnable()
+    {
+        _restartButton.onClick.AddListener(OnRestartButtonClick);
 
         _text.rectTransform.localPosition = _textOutSightPosition;
         _restartButtonRectTransform.localPosition = _restartButtonOutSightPosition;
