@@ -4,11 +4,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WinScreenAnimation : MonoBehaviour
+public class EndScreenAnimation : MonoBehaviour
 {
     [SerializeField] private Canvas _root;
     [SerializeField] private TMP_Text _text;
     [SerializeField] private Button _restartButton;
+    [SerializeField] private Button _exitButton;
     [SerializeField] private float _animationTime;
     [SerializeField] private Image _panelImage;
     [SerializeField] private float _changingAlphaDuration;
@@ -19,36 +20,54 @@ public class WinScreenAnimation : MonoBehaviour
     private float _yRestartButtonPivot;
     private float _yParentPivot;
     private Vector2 _textInSightPosition;
-    private Vector2 _restartButtonInSightPosition;
     private Vector2 _textOutSightPosition;
+    private Vector2 _restartButtonInSightPosition;
     private Vector2 _restartButtonOutSightPosition;
+    private Vector2 _exitButtonInSightPosition;
+    private Vector2 _exitButtonOutSightPosition;
     private System.Collections.Generic.List<Coroutine> _activeCoroutines;
     private RectTransform _restartButtonRectTransform;
+    private RectTransform _exitButtonRectTransform;
 
     private void Awake()
     {
         _activeCoroutines = new System.Collections.Generic.List<Coroutine>();
         _startAlpha = 0;
+
         _endAlpha = _panelImage.color.a;
         _yParentPivot = GetComponentInParent<RectTransform>().pivot.y;
         _yTextPivot = _text.rectTransform.pivot.y;
+
+
         _restartButtonRectTransform = _restartButton.GetComponent<RectTransform>();
-        _textInSightPosition = _text.rectTransform.localPosition;
+        _exitButtonRectTransform = _exitButton.GetComponent<RectTransform>();
+
         _restartButtonInSightPosition = _restartButtonRectTransform.localPosition;
+        _exitButtonInSightPosition = _exitButtonRectTransform.localPosition;
+        _textInSightPosition = _text.rectTransform.localPosition;
+
         RectTransform rootTransform = _root.GetComponent<RectTransform>();
+
         _yRestartButtonPivot = _restartButtonRectTransform.pivot.y;
+
         _textOutSightPosition = new Vector2(_text.rectTransform.localPosition.x,
             rootTransform.rect.height * _yParentPivot + _text.rectTransform.rect.height * _yTextPivot);
+
         _restartButtonOutSightPosition = new Vector2(_restartButtonRectTransform.localPosition.x,
             -(rootTransform.rect.height) * _yParentPivot - _restartButtonRectTransform.rect.height * _yRestartButtonPivot);
+
+        _exitButtonOutSightPosition = new Vector2(_exitButtonRectTransform.localPosition.x,
+            -(rootTransform.rect.height) * _yParentPivot - _exitButtonRectTransform.rect.height * _yRestartButtonPivot);
     }
 
     private void OnEnable()
     {
         _restartButton.onClick.AddListener(OnRestartButtonClick);
+        _exitButton.onClick.AddListener(OnExitButtonClick);
 
         _text.rectTransform.localPosition = _textOutSightPosition;
         _restartButtonRectTransform.localPosition = _restartButtonOutSightPosition;
+        _exitButtonRectTransform.localPosition = _exitButtonOutSightPosition;
 
         MoveInSight();
     }
@@ -56,6 +75,7 @@ public class WinScreenAnimation : MonoBehaviour
     private void OnDisable()
     {
         _restartButton.onClick.RemoveListener(OnRestartButtonClick);
+        _exitButton.onClick.RemoveListener(OnExitButtonClick);
 
         for (int i = 0; i < _activeCoroutines.Count; i++)
             StopCoroutine(_activeCoroutines[i]);
@@ -72,6 +92,7 @@ public class WinScreenAnimation : MonoBehaviour
 
         _activeCoroutines.Add(StartCoroutine(MoveTowards(_text.rectTransform, _textOutSightPosition, _textInSightPosition, _animationTime, whenEnd)));
         _activeCoroutines.Add(StartCoroutine(MoveTowards(_restartButtonRectTransform, _restartButtonOutSightPosition, _restartButtonInSightPosition, _animationTime, whenEnd)));
+        _activeCoroutines.Add(StartCoroutine(MoveTowards(_exitButtonRectTransform, _exitButtonOutSightPosition, _exitButtonInSightPosition, _animationTime, whenEnd)));
         _activeCoroutines.Add(StartCoroutine(LerpAlpha(_startAlpha, _endAlpha, _changingAlphaDuration)));
     }
 
@@ -84,6 +105,7 @@ public class WinScreenAnimation : MonoBehaviour
 
         _activeCoroutines.Add(StartCoroutine(MoveTowards(_text.rectTransform, _textInSightPosition, _textOutSightPosition, _animationTime, whenEnd)));
         _activeCoroutines.Add(StartCoroutine(MoveTowards(_restartButtonRectTransform, _restartButtonInSightPosition, _restartButtonOutSightPosition, _animationTime, whenEnd)));
+        _activeCoroutines.Add(StartCoroutine(MoveTowards(_exitButtonRectTransform, _exitButtonInSightPosition, _exitButtonOutSightPosition, _animationTime, whenEnd)));
         _activeCoroutines.Add(StartCoroutine(LerpAlpha(_endAlpha, _startAlpha, _changingAlphaDuration)));
     }
 
@@ -116,6 +138,11 @@ public class WinScreenAnimation : MonoBehaviour
     }
 
     private void OnRestartButtonClick()
+    {
+        MoveOutSight(() => gameObject.SetActive(false));
+    }
+
+    private void OnExitButtonClick()
     {
         MoveOutSight(() => gameObject.SetActive(false));
     }

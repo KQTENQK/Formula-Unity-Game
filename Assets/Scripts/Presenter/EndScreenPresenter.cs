@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class WinScreenPresenter : MonoBehaviour
+public class EndScreenPresenter : MonoBehaviour
 {
-    [SerializeField] private WinScreenView _winScreenView;
+    [SerializeField] private EndScreenView _winScreenView;
 
     public event UnityAction RestartingGame;
 
@@ -17,9 +17,10 @@ public class WinScreenPresenter : MonoBehaviour
         _winScreenView.RestartingGame -= OnRestartingGame;
     }
 
-    public void ShowScreen()
+    public void ShowScreen(string text)
     {
         _winScreenView.gameObject.SetActive(true);
+        _winScreenView.SetText(text);
     }
 
     private void OnRestartingGame()

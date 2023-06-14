@@ -7,11 +7,14 @@ public class Game : MonoBehaviour
     [SerializeField] private FieldBuilder _fieldBuilder;
     [SerializeField] private FieldView _fieldView;
     [SerializeField] private MenuPresenter _menuPresenter;
-    [SerializeField] private WinScreenPresenter _winScreenPresenter;
+    [SerializeField] private EndScreenPresenter _endScreenPresenter;
 
     private Queue<IReadOnlyCell> _selectedCells;
     private Field _field;
     private int _emptyCellsCount;
+
+    private const string _winText = "Победа";
+    private const string _loseText = "Ошибка";
 
     private void Start()
     {
@@ -21,13 +24,13 @@ public class Game : MonoBehaviour
     private void OnEnable()
     {
         _menuPresenter.StartingGame += OnStartingGame;
-        _winScreenPresenter.RestartingGame += OnRestartingGame;
+        _endScreenPresenter.RestartingGame += OnRestartingGame;
     }
 
     private void OnDisable()
     {
         _menuPresenter.StartingGame -= OnStartingGame;
-        _winScreenPresenter.RestartingGame -= OnRestartingGame;
+        _endScreenPresenter.RestartingGame -= OnRestartingGame;
     }
 
     private void OnStartingGame()
@@ -96,16 +99,29 @@ public class Game : MonoBehaviour
 
                 _emptyCellsCount += 2;
                 _selectedCells.Clear();
-            }    
+            }
+            else
+            {
+                LoseEndGame();
+            }
         }
 
         if (_emptyCellsCount >= _field.Count)
-            EndGame();
+            WinEndGame();
     }
 
-    private void EndGame()
+    private void LoseEndGame()
     {
-        _winScreenPresenter.ShowScreen();
+        for (int x = 0; x < _field.GetLength(0); x++)
+            for (int y = 0; y < _field.GetLength(1); y++)
+                _field[x, y].SetEmpty();
+
+        _endScreenPresenter.ShowScreen(_loseText);
+    }
+
+    private void WinEndGame()
+    {
+        _endScreenPresenter.ShowScreen(_winText);
     }
 
     private void OnCellDeselected(IReadOnlyCell cell)
